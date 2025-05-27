@@ -17,9 +17,9 @@ export default function ProductsPage({
     <>
       <MainNav />
       <div className="container py-8">
-        <div className="mb-8 flex items-center justify-between">
+        <div className="mb-8 flex flex-col md:flex-row items-center justify-between">
           <h1 className="text-3xl font-bold">Productos</h1>
-          <div className="flex gap-2">
+          <div className="flex gap-2 ">
             <Button
               variant={!category ? "default" : "outline"}
               asChild

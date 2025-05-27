@@ -41,17 +41,43 @@ export function CheckoutForm() {
     },
   })
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    // Aquí iría la lógica para procesar el pago
-    console.log(values)
-    
-    toast({
-      title: "Pedido realizado",
-      description: "Tu pedido ha sido procesado exitosamente.",
-    })
-
-    cart.clearCart()
-    router.push("/")
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    try {
+      const cartTotal = cart.items.reduce((total, item) => total + (item.price * item.quantity), 0);
+      
+      const response = await fetch('/api/create-preference', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          title: 'Compra en WoodWine',
+          price: cartTotal,
+          quantity: 1,
+        }),
+      });
+      const data = await response.json();
+      console.log(data)
+      
+      if (data.init_point) {
+        // Guardamos los datos del formulario y el carrito en localStorage para recuperarlos después
+        localStorage.setItem('checkout_data', JSON.stringify({
+          form: values,
+          cart: cart.items
+        }));
+        
+        window.location.href = data.init_point;
+      } else {
+        throw new Error('No se pudo crear la preferencia de pago');
+      }
+    } catch (error) {
+      console.error('Error al crear el pago:', error);
+      toast({
+        title: 'Error',
+        description: 'Hubo un error al procesar el pago. Por favor intenta nuevamente.',
+        variant: 'destructive',
+      });
+    }
   }
 
   return (
